@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Set;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,19 @@ class MentionServiceTest {
                 Component.text("hey Notch how are you"), Set.of("Notch"), false, FORMAT, 5);
         assertTrue(result.mentioned().contains("Notch"));
         assertTrue(MiniMessage.miniMessage().serialize(result.message()).contains("gold"));
+        assertEquals("hey @Notch how are you",
+                PlainTextComponentSerializer.plainText().serialize(result.message()));
+    }
+
+    @Test
+    @DisplayName("does not duplicate an optional @ symbol")
+    void highlight_optionalAt_doesNotDuplicateSymbol() {
+        MentionService.Result result = MentionService.highlight(
+                Component.text("hey @Notch how are you"), Set.of("Notch"), false, FORMAT, 5);
+
+        assertTrue(result.mentioned().contains("Notch"));
+        assertEquals("hey @Notch how are you",
+                PlainTextComponentSerializer.plainText().serialize(result.message()));
     }
 
     @Test

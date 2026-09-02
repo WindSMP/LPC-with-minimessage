@@ -84,7 +84,9 @@ public final class MentionService {
             return new Result(message, Set.of());
         }
 
-        String prefix = requireAt ? "@" : "";
+        // When @ is optional, consume it if present so the highlight format does not add a
+        // second @ in front of an already-tagged name.
+        String prefix = requireAt ? "@" : "@?";
         Pattern pattern = Pattern.compile("(?i)" + prefix + "\\b(" + alternation + ")\\b");
         Set<String> mentioned = new LinkedHashSet<>();
         int[] count = {0};
