@@ -86,8 +86,28 @@ against an Adventure 5 runtime — the exact thing a Paper 26.2 server does.
 | `/lpc reload` | `lpc.reload` | Reload the configuration |
 | `/lpc version` | – | Show the installed version |
 | `/lpc help` | – | List available commands |
+| `/lpc mentions` | `lpc.mention.toggle` | Toggle mention sounds and action-bar notifications; name highlighting remains enabled |
 | `/lpc mute <player> [duration]` | `lpc.mute` | Mute a player (e.g. `10m`, `2h`; omit for permanent) |
 | `/lpc unmute <player>` | `lpc.mute` | Unmute a player |
+
+---
+
+## 🔌 API
+
+Other plugins can read, set, or toggle a player's mention notifications without running a command.
+The preference is persistent and only affects sound and action-bar notifications; chat highlighting
+remains enabled.
+
+```java
+Plugin plugin = Bukkit.getPluginManager().getPlugin("LPC");
+if (plugin instanceof LPC lpc && plugin.isEnabled()) {
+    LpcApi api = lpc.getLpcApi();
+    boolean enabled = api.toggleMentionNotifications(player);
+}
+```
+
+The available methods are `areMentionNotificationsEnabled`,
+`setMentionNotificationsEnabled`, and `toggleMentionNotifications`.
 
 ---
 
@@ -102,6 +122,7 @@ against an Adventure 5 runtime — the exact thing a Paper 26.2 server does.
 | `lpc.emoji` | true | Use emoji shortcuts (only enforced if `emoji.require-permission`) |
 | `lpc.chatlinks` | true | Have URLs turned into clickable links |
 | `lpc.mention.exempt` | false | Opt out of receiving mention pings |
+| `lpc.mention.toggle` | true | Use `/lpc mentions` to persistently toggle mention sounds and action-bar notifications |
 | `lpc.mute` | op | Use `/lpc mute` and `/lpc unmute` |
 | `lpc.muted` | false | Marks a player as muted (usually set by a punishment plugin) |
 | `lpc.bypass.spam` / `.repeat` / `.caps` / `.profanity` / `.advert` | op | Bypass the matching moderation filter |

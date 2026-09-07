@@ -11,7 +11,7 @@ website: https://modrinth.com/plugin/lpc-chat
 commands:
   lpc:
     description: LPC chat formatter commands.
-    usage: "Usage: /lpc <reload|version|help>"
+    usage: "Usage: /lpc <reload|version|help|mentions|mute|unmute>"
 permissions:
   lpc.reload:
     description: Allows reloading the LPC configuration.
@@ -34,6 +34,9 @@ permissions:
   lpc.mention.exempt:
     description: Opt out of receiving mention pings.
     default: false
+  lpc.mention.toggle:
+    description: Use /lpc mentions to toggle sound and action-bar mention notifications.
+    default: true
   lpc.mute:
     description: Use /lpc mute and /lpc unmute.
     default: op

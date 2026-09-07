@@ -15,7 +15,7 @@ import java.util.List;
 
 public class LPCCommand implements CommandExecutor, TabCompleter {
 
-    private static final List<String> SUBCOMMANDS = List.of("reload", "version", "help", "mute", "unmute");
+    private static final List<String> SUBCOMMANDS = List.of("reload", "version", "help", "mentions", "mute", "unmute");
     private static final List<String> TARGET_SUBCOMMANDS = List.of("mute", "unmute");
     private static final MiniMessage MM = MiniMessage.miniMessage();
 
@@ -36,6 +36,7 @@ public class LPCCommand implements CommandExecutor, TabCompleter {
         switch (args[0].toLowerCase()) {
             case "reload" -> handleReload(sender);
             case "version" -> handleVersion(sender);
+            case "mentions" -> handleMentions(sender);
             case "mute" -> handleMute(sender, args);
             case "unmute" -> handleUnmute(sender, args);
             default -> sendHelp(sender);
@@ -123,10 +124,32 @@ public class LPCCommand implements CommandExecutor, TabCompleter {
         plugin.send(sender, mini("<green>Unmuted <white><name></white>.", "name", target.getName()));
     }
 
+    private void handleMentions(CommandSender sender) {
+        if (!(sender instanceof Player player)) {
+            plugin.send(sender, mini("<red>Only players can toggle mention notifications."));
+            return;
+        }
+        if (!sender.hasPermission("lpc.mention.toggle")) {
+            plugin.send(sender, mini("<red>You don't have permission to do that."));
+            return;
+        }
+
+        boolean enabled = plugin.getLpcApi().toggleMentionNotifications(player);
+        if (enabled) {
+            plugin.send(sender, mini("<green>Mention sounds and action-bar notifications enabled."));
+        } else {
+            plugin.send(sender, mini("<yellow>Mention sounds and action-bar notifications disabled. "
+                    + "<gray>Your name will still be highlighted in chat."));
+        }
+    }
+
     private void sendHelp(CommandSender sender) {
         plugin.send(sender, mini("<gradient:#B754F4:#FC00FF>LPC</gradient> <gray>commands:"));
         plugin.send(sender, mini("<dark_gray>- <white>/lpc reload</white> <dark_gray>» <gray>Reload the configuration"));
         plugin.send(sender, mini("<dark_gray>- <white>/lpc version</white> <dark_gray>» <gray>Show the plugin version"));
+        if (sender instanceof Player && sender.hasPermission("lpc.mention.toggle")) {
+            plugin.send(sender, mini("<dark_gray>- <white>/lpc mentions</white> <dark_gray>» <gray>Toggle mention notifications"));
+        }
         if (plugin.getMuteService().areCommandsEnabled()) {
             plugin.send(sender, mini("<dark_gray>- <white>/lpc mute <player> [duration]</white> <dark_gray>» <gray>Mute a player"));
             plugin.send(sender, mini("<dark_gray>- <white>/lpc unmute <player></white> <dark_gray>» <gray>Unmute a player"));

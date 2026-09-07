@@ -1,5 +1,6 @@
 package de.ayont.lpc;
 
+import de.ayont.lpc.api.LpcApi;
 import de.ayont.lpc.chat.ChatFormatService;
 import de.ayont.lpc.chat.EmojiReplacer;
 import de.ayont.lpc.chat.ItemPlaceholder;
@@ -23,7 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class LPC extends JavaPlugin {
+public final class LPC extends JavaPlugin implements LpcApi {
 
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('§')
@@ -133,6 +134,21 @@ public final class LPC extends JavaPlugin {
 
     public MentionService getMentionService() {
         return mentionService;
+    }
+
+    /** Returns LPC's stable public integration API. */
+    public LpcApi getLpcApi() {
+        return this;
+    }
+
+    @Override
+    public boolean areMentionNotificationsEnabled(Player player) {
+        return mentionService.arePingsEnabled(player);
+    }
+
+    @Override
+    public void setMentionNotificationsEnabled(Player player, boolean enabled) {
+        mentionService.setPingsEnabled(player, enabled);
     }
 
     /** Re-reads config-derived state for every service. Call after {@code reloadConfig()}. */

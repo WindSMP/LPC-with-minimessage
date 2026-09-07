@@ -4,7 +4,9 @@ import de.ayont.lpc.LPC;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -29,6 +31,7 @@ public final class MentionService {
     private static final int MAX_NAME_LENGTH = 16;
 
     private final LPC plugin;
+    private final NamespacedKey pingsDisabledKey;
     private volatile boolean enabled;
     private volatile boolean requireAt;
     private volatile String highlightFormat;
@@ -40,6 +43,7 @@ public final class MentionService {
 
     public MentionService(LPC plugin) {
         this.plugin = plugin;
+        this.pingsDisabledKey = new NamespacedKey(plugin, "mention-pings-disabled");
         reload();
     }
 
@@ -130,7 +134,7 @@ public final class MentionService {
 
     /** Pings a mentioned player with sound + action bar. Call on the main thread. */
     public void ping(Player target, String senderName) {
-        if (target.hasPermission("lpc.mention.exempt")) {
+        if (target.hasPermission("lpc.mention.exempt") || !arePingsEnabled(target)) {
             return;
         }
         if (soundName != null && !soundName.isEmpty()) {
@@ -140,6 +144,28 @@ public final class MentionService {
         if (plugin.isPaper() && actionBar != null && !actionBar.isEmpty()) {
             Component bar = MiniMessage.miniMessage().deserialize(actionBar, Placeholder.unparsed("sender", senderName));
             target.sendActionBar(bar);
+        }
+    }
+
+    /** Returns whether this player wants sound and action-bar mention notifications. */
+    public boolean arePingsEnabled(Player player) {
+        Byte disabled = player.getPersistentDataContainer().get(pingsDisabledKey, PersistentDataType.BYTE);
+        return disabled == null || disabled == 0;
+    }
+
+    /** Toggles sound and action-bar mention notifications, persisting the preference on the player. */
+    public boolean togglePings(Player player) {
+        boolean enabled = !arePingsEnabled(player);
+        setPingsEnabled(player, enabled);
+        return enabled;
+    }
+
+    /** Persistently changes sound and action-bar mention notifications for the player. */
+    public void setPingsEnabled(Player player, boolean enabled) {
+        if (enabled) {
+            player.getPersistentDataContainer().remove(pingsDisabledKey);
+        } else {
+            player.getPersistentDataContainer().set(pingsDisabledKey, PersistentDataType.BYTE, (byte) 1);
         }
     }
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `/lpc mentions` lets players persistently toggle mention sounds and action-bar notifications while keeping name highlighting in chat.
+- `lpc.mention.toggle` permission (enabled by default).
+- Public `LpcApi` with methods to read, set, and toggle persistent mention notifications from other plugins.
+
 ## 4.1.0
 
 **Released:** 2026-06-16  
